@@ -1,13 +1,45 @@
-# React + Vite
+# AI Internship Recommend Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React + Vite application for AI-powered internship recommendations.
 
-Currently, two official plugins are available:
+## Technology Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React** - Frontend library
+- **Vite** - Build tool and dev server
+- **Tailwind CSS** - Styling framework
+- **JavaScript/JSX** - Programming language
 
-## Expanding the ESLint configuration
+## Features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-# Ai-InternshipRecommend-Frontend
+- User authentication and profiles
+- AI-powered internship recommendations
+- Responsive design with modern UI
+- Landing page and user dashboard
+
+## Getting Started
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+3. Build for production:
+   ```bash
+   npm run build
+   ```
+
+## Project Structure
+
+- `src/components/` - Reusable React components
+- `src/pages/` - Main application pages
+- `src/context/` - React context providers
+- `src/utils/` - Utility functions and mock data
+
+## ESLint Configuration
+
+This project uses ESLint with React-specific rules. For production applications, consider using TypeScript with type-aware lint rules.
