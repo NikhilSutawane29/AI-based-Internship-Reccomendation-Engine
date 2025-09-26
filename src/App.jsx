@@ -30,6 +30,7 @@ function App() {
     <Router>
       <AuthProvider>
         <div className="min-h-screen bg-gray-50">
+          <Navbar />
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
@@ -38,10 +39,7 @@ function App() {
               path="/profile" 
               element={
                 <ProtectedRoute>
-                  <>
-                    <Navbar />
-                    <Profile />
-                  </>
+                  <Profile />
                 </ProtectedRoute>
               } 
             />
@@ -49,10 +47,7 @@ function App() {
               path="/recommendations" 
               element={
                 <ProtectedRoute>
-                  <>
-                    <Navbar />
-                    <Recommendations />
-                  </>
+                  <Recommendations />
                 </ProtectedRoute>
               } 
             />
