@@ -104,8 +104,21 @@ export const calculateMatchPercentage = (internship, userProfile) => {
   return totalPoints > 0 ? Math.round((score / totalPoints) * 100) : 0;
 };
 
-// Function to get recommendations based on user profile
+// Import AI Model
+import InternshipRecommendationModel from './aiModel.js';
+
+const aiModel = new InternshipRecommendationModel();
+
+// Enhanced function using AI model
 export const getRecommendations = (userProfile) => {
+  if (!userProfile) return [];
+
+  // Use AI model for better recommendations
+  return aiModel.getRecommendations(internships, userProfile);
+};
+
+// Keep legacy function for comparison
+export const getLegacyRecommendations = (userProfile) => {
   if (!userProfile) return [];
 
   return internships.map(internship => ({

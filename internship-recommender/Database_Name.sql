@@ -1,0 +1,2 @@
+CREATE DATABASE pminternship_recommender;
+USE pminternship_recommender;

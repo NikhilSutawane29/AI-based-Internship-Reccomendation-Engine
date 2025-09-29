@@ -2,8 +2,21 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+const PREDEFINED_SKILLS = [
+  "React", "JavaScript", "Python", "Java", "SQL", "HTML", "CSS", "Node.js", "Angular", "Vue.js", "C++", "C#", "Go", "Ruby", "PHP", "TypeScript", "Docker", "Kubernetes", "AWS", "Azure", "Google Cloud Platform", "MongoDB", "PostgreSQL", "Git", "TensorFlow", "PyTorch", "Swift", "Kotlin", "Spring Boot", "Django", "Flask",'Development', 'Computer Skills', 'Communication', 'Data Analysis', 'Project Management',
+  'Problem Solving', 'Teaching', 'Research', 'Leadership', 'Teamwork',
+  'Microsoft Office', 'Programming', 'Web Development', 'Digital Marketing',
+  'Content Writing', 'Social Media', 'Customer Service', 'Sales',
+  'Accounting', 'Finance', 'Data Entry', 'Graphic Design', 'Photography',
+  'Video Editing', 'Public Speaking', 'Event Management', 'Time Management',
+  'Critical Thinking', 'Creativity', 'Adaptability', 'First Aid',
+  'Basic Medical Knowledge', 'Farming', 'Field Work', 'Training',
+  'Cyber Security', 'Technical Skills', 'Hindi', 'English',
+  'Environmental Science', 'Social Work', 'Coordination'
+];
+
 const Profile = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, getAuthHeaders } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     education: '',
@@ -14,6 +27,7 @@ const Profile = () => {
     otherLocation: ''
   });
   const [skillInput, setSkillInput] = useState('');
+  const [showAllSkills, setShowAllSkills] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -85,6 +99,13 @@ const Profile = () => {
     }
   };
 
+  const handleSkillToggle = (skill) => {
+    const updatedSkills = formData.skills.includes(skill)
+      ? formData.skills.filter(s => s !== skill)
+      : [...formData.skills, skill];
+    setFormData({ ...formData, skills: updatedSkills });
+  };
+
   const handleRemoveSkill = (skill) => {
     setFormData({
       ...formData,
@@ -129,11 +150,32 @@ const Profile = () => {
 
     try {
       setLoading(true);
-      // Save profile data to localStorage
-      localStorage.setItem('userProfile', JSON.stringify(formData));
-      navigate('/recommendations');
+      
+      // Prepare profile data
+      const profileData = {
+        education: formData.education === 'Other' ? formData.otherEducation : formData.education,
+        skills: formData.skills.join(', '),
+        area_of_interest: formData.interests.join(', '),
+        location_preference: formData.location === 'Other' ? formData.otherLocation : formData.location,
+        experience_level: 'beginner'
+      };
+      
+      // Save to database
+      const response = await fetch('http://localhost:3001/api/users/profile', {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(profileData)
+      });
+      
+      if (response.ok) {
+        // Also save to localStorage for frontend AI
+        localStorage.setItem('userProfile', JSON.stringify(formData));
+        navigate('/recommendations');
+      } else {
+        throw new Error('Failed to update profile');
+      }
     } catch (err) {
-      setError('Failed to save profile');
+      setError(err.message || 'Failed to save profile');
     } finally {
       setLoading(false);
     }
@@ -233,29 +275,63 @@ const Profile = () => {
 
             {/* Skills */}
             <div className="sm:col-span-6">
-              <label htmlFor="skills" className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Skills
               </label>
-              <div className="mt-1 flex rounded-md shadow-sm">
-                <input
-                  type="text"
-                  name="skills"
-                  id="skills"
-                  value={skillInput}
-                  onChange={(e) => setSkillInput(e.target.value)}
-                  onKeyDown={handleSkillKeyDown}
-                  className="focus:ring-blue-500 focus:border-blue-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300"
-                  placeholder="Add a skill (e.g., JavaScript, Project Management)"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddSkill}
-                  className="ml-3 inline-flex items-center space-x-2 px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  Add
-                </button>
+              
+              {/* Predefined Skills */}
+              <div className="mb-4">
+                <h4 className="text-sm font-medium text-gray-600 mb-2">Select from common skills:</h4>
+                <div className="border border-gray-300 rounded-md p-3 max-h-48 overflow-y-auto">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {PREDEFINED_SKILLS.slice(0, showAllSkills ? PREDEFINED_SKILLS.length : 12).map((skill) => (
+                      <label key={skill} className="flex items-center space-x-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={formData.skills.includes(skill)}
+                          onChange={() => handleSkillToggle(skill)}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-gray-700">{skill}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowAllSkills(!showAllSkills)}
+                    className="mt-2 text-blue-600 hover:text-blue-500 text-sm font-medium"
+                  >
+                    {showAllSkills ? 'Show Less' : `Show All (${PREDEFINED_SKILLS.length} skills)`}
+                  </button>
+                </div>
               </div>
-              <div className="mt-2 flex flex-wrap gap-2">
+
+              {/* Custom Skill Input */}
+              <div className="mb-2">
+                <h4 className="text-sm font-medium text-gray-600 mb-2">Add custom skill:</h4>
+                <div className="flex rounded-md shadow-sm">
+                  <input
+                    type="text"
+                    name="skills"
+                    id="skills"
+                    value={skillInput}
+                    onChange={(e) => setSkillInput(e.target.value)}
+                    onKeyDown={handleSkillKeyDown}
+                    className="focus:ring-blue-500 focus:border-blue-500 flex-1 block w-full rounded-md sm:text-sm border-gray-300"
+                    placeholder="Add a custom skill"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddSkill}
+                    className="ml-3 inline-flex items-center space-x-2 px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+
+              {/* Selected Skills Display */}
+              <div className="flex flex-wrap gap-2">
                 {formData.skills.map((skill) => (
                   <span
                     key={skill}

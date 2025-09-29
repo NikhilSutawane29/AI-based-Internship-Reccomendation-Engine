@@ -46,6 +46,12 @@ const Navbar = () => {
               >
                 Recommendations
               </Link>
+              <Link
+                to="/admin"
+                className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600"
+              >
+                Admin
+              </Link>
             </div>
             <div className="ml-4 flex items-center md:ml-6">
               {currentUser ? (

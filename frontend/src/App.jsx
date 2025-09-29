@@ -7,6 +7,7 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Profile from './pages/Profile'
 import Recommendations from './pages/Recommendations'
+import Admin from './pages/Admin'
 import NotFound from './pages/NotFound'
 
 // Import components
@@ -51,6 +52,7 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

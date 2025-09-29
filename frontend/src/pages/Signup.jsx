@@ -2,21 +2,57 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+const PREDEFINED_SKILLS = [
+  'Development', 'Computer Skills', 'Communication', 'Data Analysis', 'Project Management',
+  'Problem Solving', 'Teaching', 'Research', 'Leadership', 'Teamwork',
+  'Microsoft Office', 'Programming', 'Web Development', 'Digital Marketing',
+  'Content Writing', 'Social Media', 'Customer Service', 'Sales',
+  'Accounting', 'Finance', 'Data Entry', 'Graphic Design', 'Photography',
+  'Video Editing', 'Public Speaking', 'Event Management', 'Time Management',
+  'Critical Thinking', 'Creativity', 'Adaptability', 'First Aid',
+  'Basic Medical Knowledge', 'Farming', 'Field Work', 'Training',
+  'Cyber Security', 'Technical Skills', 'Hindi', 'English',
+  'Environmental Science', 'Social Work', 'Coordination'
+];
+
 const Signup = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    skills: '',
+    education: '',
+    sector: '',
+    location: ''
+  });
+  const [selectedSkills, setSelectedSkills] = useState([]);
+  const [showAllSkills, setShowAllSkills] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { signup } = useAuth();
 
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSkillToggle = (skill) => {
+    const updatedSkills = selectedSkills.includes(skill)
+      ? selectedSkills.filter(s => s !== skill)
+      : [...selectedSkills, skill];
+    setSelectedSkills(updatedSkills);
+    setFormData({ ...formData, skills: updatedSkills.join(', ') });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (!email || !password || !confirmPassword) {
-      return setError('Please fill in all fields');
+    const { name, email, password, confirmPassword } = formData;
+
+    if (!name || !email || !password || !confirmPassword) {
+      return setError('Please fill in all required fields');
     }
 
     if (password !== confirmPassword) {
@@ -29,10 +65,11 @@ const Signup = () => {
 
     try {
       setLoading(true);
-      await signup(email, password);
-      navigate('/profile');
+      const { confirmPassword, ...userData } = formData;
+      await signup(userData);
+      navigate('/recommendations');
     } catch (err) {
-      setError('Failed to create an account');
+      setError(err.message || 'Failed to create an account');
     } finally {
       setLoading(false);
     }
@@ -40,7 +77,7 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+      <div className="max-w-lg w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Create your account</h2>
           <p className="mt-2 text-center text-sm text-gray-600">
@@ -57,56 +94,114 @@ const Signup = () => {
           </div>
         )}
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+        <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <input
+              name="name"
+              type="text"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Full Name"
+              value={formData.name}
+              onChange={handleChange}
+            />
+            <input
+              name="email"
+              type="email"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Email address"
+              value={formData.email}
+              onChange={handleChange}
+            />
+            <input
+              name="password"
+              type="password"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+            />
+            <input
+              name="confirmPassword"
+              type="password"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Confirm Password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+            />
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Select Your Skills</label>
+              <div className="border border-gray-300 rounded-md p-3 max-h-48 overflow-y-auto">
+                <div className="grid grid-cols-2 gap-2">
+                  {PREDEFINED_SKILLS.slice(0, showAllSkills ? PREDEFINED_SKILLS.length : 12).map((skill) => (
+                    <label key={skill} className="flex items-center space-x-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={selectedSkills.includes(skill)}
+                        onChange={() => handleSkillToggle(skill)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-gray-700">{skill}</span>
+                    </label>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAllSkills(!showAllSkills)}
+                  className="mt-2 text-blue-600 hover:text-blue-500 text-sm font-medium"
+                >
+                  {showAllSkills ? 'Show Less' : `Show All (${PREDEFINED_SKILLS.length} skills)`}
+                </button>
+              </div>
+              {selectedSkills.length > 0 && (
+                <div className="text-sm text-gray-600">
+                  Selected: {selectedSkills.join(', ')}
+                </div>
+              )}
             </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="confirm-password" className="sr-only">
-                Confirm Password
-              </label>
-              <input
-                id="confirm-password"
-                name="confirm-password"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
+            <select
+              name="education"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              value={formData.education}
+              onChange={handleChange}
+            >
+              <option value="">Select Education Level</option>
+              <option value="12th Pass">12th Pass</option>
+              <option value="Undergraduate">Undergraduate</option>
+              <option value="Graduate">Graduate</option>
+              <option value="Post Graduate">Post Graduate</option>
+            </select>
+            <select
+              name="sector"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              value={formData.sector}
+              onChange={handleChange}
+            >
+              <option value="">Select Sector Interest</option>
+              <option value="Agriculture">Agriculture</option>
+              <option value="IT">Information Technology</option>
+              <option value="Healthcare">Healthcare</option>
+              <option value="Education">Education</option>
+              <option value="Finance">Finance</option>
+              <option value="Rural Development">Rural Development</option>
+              <option value="Environment">Environment</option>
+              <option value="Skill Development">Skill Development</option>
+              <option value="Social Welfare">Social Welfare</option>
+              <option value="Manufacturing">Manufacturing</option>
+              <option value="Tourism">Tourism</option>
+              <option value="Media">Media & Communication</option>
+            </select>
+            <input
+              name="location"
+              type="text"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Preferred Location (e.g., Delhi, Mumbai)"
+              value={formData.location}
+              onChange={handleChange}
+            />
           </div>
 
           <div>

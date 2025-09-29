@@ -1,0 +1,56 @@
+INSERT INTO internships (
+    title,
+    description,
+    sector,
+    required_education,
+    skills_required,
+    location,
+    state,
+    duration,
+    stipend,
+    apply_link,
+    last_date,
+    organization
+) VALUES
+(
+    'Agriculture Internship',
+    'Work with local farmers to improve crop yield and sustainability.',
+    'Agriculture',
+    '12th Pass',
+    'Farming,Communication',
+    'Pune',
+    'Maharashtra',
+    '3 months',
+    5000.00,
+    'https://pminternship.mca.gov.in/apply/1',
+    '2025-12-31',
+    'Ministry of Agriculture'
+),
+(
+    'IT Support Intern',
+    'Assist with tech support and troubleshooting for government IT systems.',
+    'IT',
+    'Undergraduate',
+    'IT Support,Problem Solving',
+    'Delhi',
+    'Delhi',
+    '6 months',
+    8000.00,
+    'https://pminternship.mca.gov.in/apply/2',
+    '2025-11-30',
+    'Ministry of Electronics and IT'
+),
+(
+    'Healthcare Volunteer',
+    'Support local clinics and health camps in rural areas.',
+    'Healthcare',
+    '12th Pass',
+    'First Aid,Communication',
+    'Bengaluru',
+    'Karnataka',
+    '2 months',
+    3000.00,
+    'https://pminternship.mca.gov.in/apply/3',
+    '2025-10-31',
+    'Ministry of Health'
+);

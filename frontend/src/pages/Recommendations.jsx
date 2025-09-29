@@ -1,15 +1,30 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { getRecommendations } from '../utils/mockData';
+import InternshipRecommendationModel from '../utils/aiModel';
 
-const RecommendationCard = ({ internship }) => {
-  const { title, sector, location, description, skills, matchPercentage } = internship;
+const RecommendationCard = ({ internship, userSkills = [] }) => {
+  const { title, sector, location, description, skills, stipend, duration, matchPercentage, confidence, rank } = internship;
+  
+  const getSkillMatchStatus = (skill) => {
+    const userSkillsLower = userSkills.map(s => s.toLowerCase().trim());
+    const skillLower = skill.toLowerCase().trim();
+    return userSkillsLower.some(userSkill => 
+      userSkill.includes(skillLower) || skillLower.includes(userSkill)
+    );
+  };
 
-  // Determine match color based on percentage
   const getMatchColor = (percentage) => {
     if (percentage >= 80) return 'bg-green-100 text-green-800';
     if (percentage >= 60) return 'bg-blue-100 text-blue-800';
     return 'bg-gray-100 text-gray-800';
+  };
+
+  const getConfidenceColor = (confidence) => {
+    if (confidence === 'High') return 'bg-green-50 text-green-700 border-green-200';
+    if (confidence === 'Medium') return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+    return 'bg-gray-50 text-gray-700 border-gray-200';
   };
 
   return (
@@ -17,9 +32,16 @@ const RecommendationCard = ({ internship }) => {
       <div className="px-4 py-5 sm:px-6">
         <div className="flex justify-between">
           <h3 className="text-lg leading-6 font-medium text-gray-900">{title}</h3>
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getMatchColor(matchPercentage)}`}>
-            {matchPercentage}% Match
-          </span>
+          <div className="flex flex-col items-end gap-1">
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getMatchColor(matchPercentage)}`}>
+              {Math.round(matchPercentage)}% Match
+            </span>
+            {confidence && (
+              <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${getConfidenceColor(confidence)}`}>
+                {confidence} Confidence
+              </span>
+            )}
+          </div>
         </div>
         <div className="mt-2 flex items-center text-sm text-gray-500">
           <svg className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -36,18 +58,36 @@ const RecommendationCard = ({ internship }) => {
       </div>
       <div className="px-4 py-4 sm:px-6">
         <p className="text-sm text-gray-500 line-clamp-2">{description}</p>
+        {stipend && (
+          <div className="mt-2 text-sm font-medium text-green-600">
+            {stipend} • {duration}
+          </div>
+        )}
         <div className="mt-4">
           <div className="flex flex-wrap gap-1">
-            {skills.slice(0, 3).map((skill, index) => (
-              <span key={index} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                {skill}
-              </span>
-            ))}
-            {skills.length > 3 && (
+            {(skills || []).slice(0, 5).map((skill, index) => {
+              const isMatched = getSkillMatchStatus(skill);
+              return (
+                <span 
+                  key={index} 
+                  className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                    isMatched 
+                      ? 'bg-green-100 text-green-800 border border-green-300' 
+                      : 'bg-blue-100 text-blue-800'
+                  }`}
+                >
+                  {isMatched && '✓ '}{skill}
+                </span>
+              );
+            })}
+            {(skills || []).length > 5 && (
               <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                +{skills.length - 3} more
+                +{skills.length - 5} more
               </span>
             )}
+          </div>
+          <div className="text-xs text-gray-400 mt-1">
+            User Skills: {userSkills.join(', ') || 'None'}
           </div>
         </div>
         <div className="mt-4">
@@ -63,16 +103,66 @@ const RecommendationCard = ({ internship }) => {
 const Recommendations = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { currentUser, getAuthHeaders } = useAuth();
+  const navigate = useNavigate();
+  const aiModel = new InternshipRecommendationModel();
 
   useEffect(() => {
-    // Get user profile from localStorage
-    const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-    
-    // Get recommendations based on user profile
-    const recommendationsList = getRecommendations(userProfile);
-    setRecommendations(recommendationsList);
-    setLoading(false);
-  }, []);
+    if (!currentUser) {
+      navigate('/login');
+      return;
+    }
+
+    const fetchRecommendations = async () => {
+      try {
+        // Try backend AI recommendations first
+        const response = await fetch('http://localhost:3001/api/internships/recommendations', {
+          headers: getAuthHeaders()
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setRecommendations(data);
+        } else {
+          throw new Error('Backend API failed');
+        }
+      } catch (err) {
+        console.log('Using frontend AI model for recommendations');
+        
+        // Get user profile from localStorage and currentUser
+        const savedProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+        const userProfile = {
+          skills: currentUser.skills ? currentUser.skills.split(',').map(s => s.trim()) : (savedProfile.skills || []),
+          interests: savedProfile.interests || (currentUser.sector ? [currentUser.sector] : []),
+          location: currentUser.location || savedProfile.location || '',
+          education: currentUser.education || savedProfile.education || '',
+          experience_level: savedProfile.experience_level || 'beginner'
+        };
+        
+        console.log('User Profile for AI:', userProfile);
+        console.log('Current User:', currentUser);
+        console.log('Saved Profile:', savedProfile);
+        
+        // Get internships and use AI model
+        const internshipsResponse = await fetch('http://localhost:3001/api/internships');
+        if (internshipsResponse.ok) {
+          const internships = await internshipsResponse.json();
+          console.log('Internships from API:', internships);
+          const aiRecommendations = aiModel.getRecommendations(internships, userProfile);
+          console.log('AI Recommendations:', aiRecommendations);
+          setRecommendations(aiRecommendations);
+        } else {
+          // Final fallback to mock data
+          const mockRecommendations = getRecommendations(userProfile);
+          setRecommendations(mockRecommendations);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecommendations();
+  }, [currentUser, navigate]);
 
   if (loading) {
     return (
@@ -84,13 +174,15 @@ const Recommendations = () => {
     );
   }
 
+
+
   return (
     <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
       <div className="px-4 py-6 sm:px-0">
         <div className="border-b border-gray-200 pb-5">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">Your Internship Recommendations</h2>
+          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">AI-Powered Internship Recommendations</h2>
           <p className="mt-2 max-w-4xl text-sm text-gray-500">
-            Based on your profile, we've found these internships that match your skills, interests, and location preferences.
+            Our AI model analyzed your profile and found these personalized internship matches based on skills, experience, and preferences.
           </p>
         </div>
 
@@ -112,9 +204,12 @@ const Recommendations = () => {
           </div>
         ) : (
           <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {recommendations.map((internship) => (
-              <RecommendationCard key={internship.id} internship={internship} />
-            ))}
+            {recommendations.map((internship) => {
+              const userSkills = currentUser.skills ? currentUser.skills.split(',').map(s => s.trim()) : [];
+              return (
+                <RecommendationCard key={internship.id} internship={internship} userSkills={userSkills} />
+              );
+            })}
           </div>
         )}
       </div>
