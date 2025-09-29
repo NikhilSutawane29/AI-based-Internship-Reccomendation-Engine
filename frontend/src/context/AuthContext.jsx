@@ -34,6 +34,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('user', JSON.stringify(data.user));
         setToken(data.token);
         setCurrentUser(data.user);
+        window.location.reload();
         return data;
       } else {
         throw new Error(data.message);

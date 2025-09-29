@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -26,6 +26,20 @@ const Profile = () => {
     otherEducation: '',
     otherLocation: ''
   });
+
+  // Load existing user data
+  useEffect(() => {
+    if (currentUser) {
+      setFormData({
+        education: currentUser.education || '',
+        skills: currentUser.skills ? currentUser.skills.split(', ').filter(skill => skill.trim()) : [],
+        interests: currentUser.area_of_interest ? currentUser.area_of_interest.split(', ').filter(interest => interest.trim()) : [],
+        location: currentUser.location_preference || '',
+        otherEducation: '',
+        otherLocation: ''
+      });
+    }
+  }, [currentUser]);
   const [skillInput, setSkillInput] = useState('');
   const [showAllSkills, setShowAllSkills] = useState(false);
   const [error, setError] = useState('');

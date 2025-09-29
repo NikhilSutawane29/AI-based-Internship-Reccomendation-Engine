@@ -5,11 +5,21 @@ const router = express.Router();
 
 router.post('/', async (req, res) => {
   try {
-    const { user_id, internship_id, resume_link, cover_letter } = req.body;
+    const { 
+      user_id, 
+      internship_id, 
+      full_name, 
+      email, 
+      phone, 
+      education, 
+      skills, 
+      resume_link, 
+      cover_letter 
+    } = req.body;
     
     const [result] = await db.execute(
-      'INSERT INTO applications (user_id, internship_id, resume_link, cover_letter) VALUES (?, ?, ?, ?)',
-      [user_id, internship_id, resume_link, cover_letter]
+      'INSERT INTO applications (user_id, internship_id, full_name, email, phone, education, skills, resume_link, cover_letter) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [user_id, internship_id, full_name, email, phone, education, skills, resume_link, cover_letter]
     );
     
     res.status(201).json({ 

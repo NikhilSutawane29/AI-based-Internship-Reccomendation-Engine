@@ -7,6 +7,8 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Profile from './pages/Profile'
 import Recommendations from './pages/Recommendations'
+import Apply from './pages/Apply'
+import ApplySuccess from './pages/ApplySuccess'
 import Admin from './pages/Admin'
 import NotFound from './pages/NotFound'
 
@@ -49,6 +51,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Recommendations />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/apply" 
+              element={
+                <ProtectedRoute>
+                  <Apply />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/apply-success" 
+              element={
+                <ProtectedRoute>
+                  <ApplySuccess />
                 </ProtectedRoute>
               } 
             />

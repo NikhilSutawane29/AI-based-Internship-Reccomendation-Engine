@@ -1,34 +1,102 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const PREDEFINED_SKILLS = [
-  'Development', 'Computer Skills', 'Communication', 'Data Analysis', 'Project Management',
-  'Problem Solving', 'Teaching', 'Research', 'Leadership', 'Teamwork',
-  'Microsoft Office', 'Programming', 'Web Development', 'Digital Marketing',
-  'Content Writing', 'Social Media', 'Customer Service', 'Sales',
-  'Accounting', 'Finance', 'Data Entry', 'Graphic Design', 'Photography',
-  'Video Editing', 'Public Speaking', 'Event Management', 'Time Management',
-  'Critical Thinking', 'Creativity', 'Adaptability', 'First Aid',
-  'Basic Medical Knowledge', 'Farming', 'Field Work', 'Training',
-  'Cyber Security', 'Technical Skills', 'Hindi', 'English',
-  'Environmental Science', 'Social Work', 'Coordination'
+  "React",
+  "JavaScript",
+  "Python",
+  "Java",
+  "SQL",
+  "HTML",
+  "CSS",
+  "Node.js",
+  "Angular",
+  "Vue.js",
+  "C++",
+  "C#",
+  "Go",
+  "Ruby",
+  "PHP",
+  "TypeScript",
+  "Docker",
+  "Kubernetes",
+  "AWS",
+  "Azure",
+  "Google Cloud Platform",
+  "MongoDB",
+  "PostgreSQL",
+  "Git",
+  "TensorFlow",
+  "PyTorch",
+  "Swift",
+  "Kotlin",
+  "Spring Boot",
+  "Django",
+  "Flask",
+  "Development",
+  "Computer Skills",
+  "Communication",
+  "Data Analysis",
+  "Project Management",
+  "Development",
+  "Computer Skills",
+  "Communication",
+  "Data Analysis",
+  "Project Management",
+  "Problem Solving",
+  "Teaching",
+  "Research",
+  "Leadership",
+  "Teamwork",
+  "Microsoft Office",
+  "Programming",
+  "Web Development",
+  "Digital Marketing",
+  "Content Writing",
+  "Social Media",
+  "Customer Service",
+  "Sales",
+  "Accounting",
+  "Finance",
+  "Data Entry",
+  "Graphic Design",
+  "Photography",
+  "Video Editing",
+  "Public Speaking",
+  "Event Management",
+  "Time Management",
+  "Critical Thinking",
+  "Creativity",
+  "Adaptability",
+  "First Aid",
+  "Basic Medical Knowledge",
+  "Farming",
+  "Field Work",
+  "Training",
+  "Cyber Security",
+  "Technical Skills",
+  "Hindi",
+  "English",
+  "Environmental Science",
+  "Social Work",
+  "Coordination",
 ];
 
 const Signup = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    skills: '',
-    education: '',
-    sector: '',
-    location: ''
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    skills: "",
+    education: "",
+    sector: "",
+    location: "",
   });
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [showAllSkills, setShowAllSkills] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { signup } = useAuth();
@@ -39,37 +107,42 @@ const Signup = () => {
 
   const handleSkillToggle = (skill) => {
     const updatedSkills = selectedSkills.includes(skill)
-      ? selectedSkills.filter(s => s !== skill)
+      ? selectedSkills.filter((s) => s !== skill)
       : [...selectedSkills, skill];
     setSelectedSkills(updatedSkills);
-    setFormData({ ...formData, skills: updatedSkills.join(', ') });
+    setFormData({ ...formData, skills: updatedSkills.join(", ") });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     const { name, email, password, confirmPassword } = formData;
 
     if (!name || !email || !password || !confirmPassword) {
-      return setError('Please fill in all required fields');
+      return setError("Please fill in all required fields");
     }
 
     if (password !== confirmPassword) {
-      return setError('Passwords do not match');
+      return setError("Passwords do not match");
     }
 
     if (password.length < 6) {
-      return setError('Password should be at least 6 characters');
+      return setError("Password should be at least 6 characters");
     }
 
     try {
       setLoading(true);
-      const { confirmPassword, ...userData } = formData;
-      await signup(userData);
-      navigate('/recommendations');
+      const { confirmPassword, sector, location, ...userData } = formData;
+      const mappedUserData = {
+        ...userData,
+        area_of_interest: sector,
+        location_preference: location,
+      };
+      await signup(mappedUserData);
+      navigate("/recommendations");
     } catch (err) {
-      setError(err.message || 'Failed to create an account');
+      setError(err.message || "Failed to create an account");
     } finally {
       setLoading(false);
     }
@@ -79,17 +152,25 @@ const Signup = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-lg w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Create your account</h2>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Create your account
+          </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+            Or{" "}
+            <Link
+              to="/login"
+              className="font-medium text-blue-600 hover:text-blue-500"
+            >
               sign in to your existing account
             </Link>
           </p>
         </div>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <div
+            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+            role="alert"
+          >
             <span className="block sm:inline">{error}</span>
           </div>
         )}
@@ -133,11 +214,19 @@ const Signup = () => {
               onChange={handleChange}
             />
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">Select Your Skills</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Select Your Skills
+              </label>
               <div className="border border-gray-300 rounded-md p-3 max-h-48 overflow-y-auto">
                 <div className="grid grid-cols-2 gap-2">
-                  {PREDEFINED_SKILLS.slice(0, showAllSkills ? PREDEFINED_SKILLS.length : 12).map((skill) => (
-                    <label key={skill} className="flex items-center space-x-2 text-sm">
+                  {PREDEFINED_SKILLS.slice(
+                    0,
+                    showAllSkills ? PREDEFINED_SKILLS.length : 12
+                  ).map((skill) => (
+                    <label
+                      key={skill}
+                      className="flex items-center space-x-2 text-sm"
+                    >
                       <input
                         type="checkbox"
                         checked={selectedSkills.includes(skill)}
@@ -153,12 +242,14 @@ const Signup = () => {
                   onClick={() => setShowAllSkills(!showAllSkills)}
                   className="mt-2 text-blue-600 hover:text-blue-500 text-sm font-medium"
                 >
-                  {showAllSkills ? 'Show Less' : `Show All (${PREDEFINED_SKILLS.length} skills)`}
+                  {showAllSkills
+                    ? "Show Less"
+                    : `Show All (${PREDEFINED_SKILLS.length} skills)`}
                 </button>
               </div>
               {selectedSkills.length > 0 && (
                 <div className="text-sm text-gray-600">
-                  Selected: {selectedSkills.join(', ')}
+                  Selected: {selectedSkills.join(", ")}
                 </div>
               )}
             </div>
@@ -210,13 +301,16 @@ const Signup = () => {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
             >
-              {loading ? 'Creating account...' : 'Sign up'}
+              {loading ? "Creating account..." : "Sign up"}
             </button>
           </div>
         </form>
 
         <div className="text-center mt-4">
-          <Link to="/" className="font-medium text-blue-600 hover:text-blue-500">
+          <Link
+            to="/"
+            className="font-medium text-blue-600 hover:text-blue-500"
+          >
             Back to Home
           </Link>
         </div>

@@ -4,13 +4,13 @@ import { useAuth } from '../context/AuthContext';
 import { getRecommendations } from '../utils/mockData';
 import InternshipRecommendationModel from '../utils/aiModel';
 
-const RecommendationCard = ({ internship, userSkills = [] }) => {
+const RecommendationCard = ({ internship, userSkills = [], navigate }) => {
   const { title, sector, location, description, skills, stipend, duration, matchPercentage, confidence, rank } = internship;
   
   const getSkillMatchStatus = (skill) => {
     const userSkillsLower = userSkills.map(s => s.toLowerCase().trim());
     const skillLower = skill.toLowerCase().trim();
-    return userSkillsLower.some(userSkill => 
+    return userSkillsLower.some(userSkill =>  
       userSkill.includes(skillLower) || skillLower.includes(userSkill)
     );
   };
@@ -91,7 +91,10 @@ const RecommendationCard = ({ internship, userSkills = [] }) => {
           </div>
         </div>
         <div className="mt-4">
-          <button className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <button 
+            onClick={() => navigate('/apply', { state: { internship } })}
+            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
             Apply Now
           </button>
         </div>
@@ -207,7 +210,7 @@ const Recommendations = () => {
             {recommendations.map((internship) => {
               const userSkills = currentUser.skills ? currentUser.skills.split(',').map(s => s.trim()) : [];
               return (
-                <RecommendationCard key={internship.id} internship={internship} userSkills={userSkills} />
+                <RecommendationCard key={internship.id} internship={internship} userSkills={userSkills} navigate={navigate} />
               );
             })}
           </div>
