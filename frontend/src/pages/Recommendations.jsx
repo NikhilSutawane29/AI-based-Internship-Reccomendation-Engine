@@ -116,7 +116,7 @@ const Recommendations = () => {
     const fetchRecommendations = async () => {
       try {
         // Try backend AI recommendations first
-        const response = await fetch('http://localhost:3001/api/internships/recommendations', {
+        const response = await fetch('http://localhost:5000/api/internships/recommendations', {
           headers: getAuthHeaders()
         });
         
@@ -144,7 +144,7 @@ const Recommendations = () => {
         console.log('Saved Profile:', savedProfile);
         
         // Get internships and use AI model
-        const internshipsResponse = await fetch('http://localhost:3001/api/internships');
+        const internshipsResponse = await fetch('http://localhost:5000/api/internships');
         if (internshipsResponse.ok) {
           const internships = await internshipsResponse.json();
           console.log('Internships from API:', internships);

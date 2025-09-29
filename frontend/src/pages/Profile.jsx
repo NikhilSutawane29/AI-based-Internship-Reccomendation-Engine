@@ -161,7 +161,7 @@ const Profile = () => {
       };
       
       // Save to database
-      const response = await fetch('http://localhost:3001/api/users/profile', {
+      const response = await fetch('http://localhost:5000/api/users/profile', {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify(profileData)
