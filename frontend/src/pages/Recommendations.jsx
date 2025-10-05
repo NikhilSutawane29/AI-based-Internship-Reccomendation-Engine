@@ -16,9 +16,9 @@ const RecommendationCard = ({ internship, userSkills = [], navigate }) => {
   };
 
   const getMatchColor = (percentage) => {
-    if (percentage >= 80) return 'bg-green-100 text-green-800';
-    if (percentage >= 60) return 'bg-blue-100 text-blue-800';
-    return 'bg-gray-100 text-gray-800';
+    if (percentage >= 80) return 'bg-gradient-to-r from-green-500 to-emerald-600 text-white';
+    if (percentage >= 60) return 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white';
+    return 'bg-gradient-to-r from-gray-400 to-gray-500 text-white';
   };
 
   const getConfidenceColor = (confidence) => {
@@ -28,52 +28,54 @@ const RecommendationCard = ({ internship, userSkills = [], navigate }) => {
   };
 
   return (
-    <div className="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200">
-      <div className="px-4 py-5 sm:px-6">
-        <div className="flex justify-between">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">{title}</h3>
-          <div className="flex flex-col items-end gap-1">
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getMatchColor(matchPercentage)}`}>
+    <div className="glass rounded-2xl shadow-xl card-hover overflow-hidden">
+      <div className="p-6">
+        <div className="flex justify-between items-start mb-4">
+          <h3 className="text-xl font-bold text-gray-900 leading-tight">{title}</h3>
+          <div className="flex flex-col items-end gap-2">
+            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-bold shadow-lg ${getMatchColor(matchPercentage)}`}>
               {Math.round(matchPercentage)}% Match
             </span>
             {confidence && (
-              <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${getConfidenceColor(confidence)}`}>
+              <span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium border ${getConfidenceColor(confidence)}`}>
                 {confidence} Confidence
               </span>
             )}
           </div>
         </div>
-        <div className="mt-2 flex items-center text-sm text-gray-500">
-          <svg className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4zm3 1h6v4H7V5zm8 8v2h1v1H4v-1h1v-2h-.5a.5.5 0 01-.5-.5v-2a.5.5 0 01.5-.5H6v-1h8v1h1.5a.5.5 0 01.5.5v2a.5.5 0 01-.5.5H15z" clipRule="evenodd" />
-          </svg>
-          {sector}
+        
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center text-sm text-gray-600">
+            <span className="mr-2">🏢</span>
+            <span className="font-medium">{sector}</span>
+          </div>
+          <div className="flex items-center text-sm text-gray-600">
+            <span className="mr-2">📍</span>
+            <span>{location}</span>
+          </div>
         </div>
-        <div className="mt-2 flex items-center text-sm text-gray-500">
-          <svg className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-          </svg>
-          {location}
-        </div>
-      </div>
-      <div className="px-4 py-4 sm:px-6">
-        <p className="text-sm text-gray-500 line-clamp-2">{description}</p>
+        
+        <p className="text-gray-600 line-clamp-3 mb-4 leading-relaxed">{description}</p>
+        
         {stipend && (
-          <div className="mt-2 text-sm font-medium text-green-600">
-            {stipend} • {duration}
+          <div className="mb-4 p-3 bg-green-50 rounded-xl border border-green-200">
+            <div className="text-sm font-semibold text-green-800">
+              💰 {stipend} • ⏰ {duration}
+            </div>
           </div>
         )}
-        <div className="mt-4">
-          <div className="flex flex-wrap gap-1">
+        
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2">
             {(skills || []).slice(0, 5).map((skill, index) => {
               const isMatched = getSkillMatchStatus(skill);
               return (
                 <span 
                   key={index} 
-                  className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                  className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200 ${
                     isMatched 
-                      ? 'bg-green-100 text-green-800 border border-green-300' 
-                      : 'bg-blue-100 text-blue-800'
+                      ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md' 
+                      : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
                   }`}
                 >
                   {isMatched && '✓ '}{skill}
@@ -81,23 +83,19 @@ const RecommendationCard = ({ internship, userSkills = [], navigate }) => {
               );
             })}
             {(skills || []).length > 5 && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+              <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-800">
                 +{skills.length - 5} more
               </span>
             )}
           </div>
-          <div className="text-xs text-gray-400 mt-1">
-            User Skills: {userSkills.join(', ') || 'None'}
-          </div>
         </div>
-        <div className="mt-4">
-          <button 
-            onClick={() => navigate('/apply', { state: { internship } })}
-            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            Apply Now
-          </button>
-        </div>
+        
+        <button 
+          onClick={() => navigate('/apply', { state: { internship } })}
+          className="btn-modern w-full py-3 px-4 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+        >
+          ✨ Apply Now →
+        </button>
       </div>
     </div>
   );
@@ -180,33 +178,36 @@ const Recommendations = () => {
 
 
   return (
-    <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-      <div className="px-4 py-6 sm:px-0">
-        <div className="border-b border-gray-200 pb-5">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">AI-Powered Internship Recommendations</h2>
-          <p className="mt-2 max-w-4xl text-sm text-gray-500">
-            Our AI model analyzed your profile and found these personalized internship matches based on skills, experience, and preferences.
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12 animate-fade-in">
+          <div className="mb-4">
+            <span className="text-6xl">🤖</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold gradient-text mb-4">
+            AI-Powered Recommendations
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Our AI model analyzed your profile and found these personalized internship matches based on your skills, experience, and preferences.
           </p>
         </div>
 
         {recommendations.length === 0 ? (
-          <div className="text-center py-12">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No recommendations found</h3>
-            <p className="mt-1 text-sm text-gray-500">Try updating your profile with more skills and interests.</p>
-            <div className="mt-6">
+          <div className="text-center py-16">
+            <div className="glass p-12 rounded-3xl shadow-2xl max-w-md mx-auto">
+              <div className="text-6xl mb-6">😕</div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">No recommendations found</h3>
+              <p className="text-gray-600 mb-8 leading-relaxed">Try updating your profile with more skills and interests to get better matches.</p>
               <Link
                 to="/profile"
-                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="btn-modern inline-flex items-center px-6 py-3 text-lg font-semibold rounded-xl text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
               >
-                Update Profile
+                ⚙️ Update Profile
               </Link>
             </div>
           </div>
         ) : (
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 animate-slide-up">
             {recommendations.map((internship) => {
               const userSkills = currentUser.skills ? currentUser.skills.split(',').map(s => s.trim()) : [];
               return (

@@ -33,6 +33,16 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     
+    // Check for admin credentials
+    if (email === 'futureforge@sih.com' && password === 'futureforge') {
+      const token = jwt.sign({ userId: 'admin', isAdmin: true }, process.env.JWT_SECRET, { expiresIn: '24h' });
+      return res.json({
+        message: 'Admin login successful',
+        token,
+        user: { id: 'admin', name: 'Admin', email: 'futureforge@sih.com', isAdmin: true }
+      });
+    }
+    
     const user = await User.findByEmail(email);
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
